@@ -105,12 +105,13 @@
       $attr = Attraction::find($id);
 
       return view('attraction.show', [
-        'country'      => $attr->city->country->name,
-        'city'         => $attr->city->name,
-        'title'        => $attr->title,
-        'name'         => $attr->name,
-        'description'  => $attr->description,
-        'id'           => $id,
+        'country_redact'      => $attr->city->country->name,
+        'city_redact'         => $attr->city->name,
+        'title_redact'        => $attr->title,
+        'name_redact'         => $attr->name,
+        'description_redact'  => $attr->description,
+        'id'                  => $id,
+        'name'                => $attr->name,
       ]);
     }
 
