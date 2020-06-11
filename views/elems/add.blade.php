@@ -1,3 +1,4 @@
+<!-- в инпуте name, требуется указать точное название картинки -->
 <div class="add">
   <form class="add_form" action="/attraction/add" method="get">
     <input type="text" name="country"
