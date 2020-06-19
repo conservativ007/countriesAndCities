@@ -85,8 +85,7 @@
           ->where('name', Input::get('city'))
           ->first()->id;
 
-        // записываем достопримечательность)
-
+        // записываем достопримечательность если её нету
         if(Attraction::where('title', '=', Input::get('title'))->count() == 0){
           $city = City::find($cityId);
           $city->attraction()->create([
@@ -94,6 +93,7 @@
             'title'       => Input::get('title'),
             'description' => Input::get('description')
           ]);
+          // если есть то обновляем
         }else{
           $attr = Attraction::find(Input::get('id'));
           $attr->description = Input::get('description');
