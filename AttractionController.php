@@ -4,28 +4,36 @@
   use Illuminate\Http\Request;
   use Illuminate\Support\Facades\DB;
   use Illuminate\Support\Facades\Input;
+  use Illuminate\Support\Facades\Auth;
 
   use App\Country;
   use App\City;
   use App\Attraction;
 
   class AttractionController extends Controller{
-
     public function show(){
+
       return view('attraction.show', [
         'countries'  => Country::get(),
         'attraction' => Attraction::get(),
+        'key'        => Auth::check() ? true : false,
       ]);
     }
 
+    public function logout(){
+      Auth::logout();
+      return redirect('/attraction');
+    }
+
+
     public function city($id){
+
       return view('attraction.show', [
         'countries'   => Country::get(),
         'country'     => Country::find($id),
         'countryName' => Country::find($id)->name,
       ]);
     }
-
 
     public function attraction($id){
       return view('attraction.show', [
@@ -35,16 +43,19 @@
     }
 
     public function description($attraction_id, $name = ''){
+
       return view('attraction.show', [
-        'countries' => Country::get(),
-        'desc' => Attraction::find($attraction_id),
-        'description' => Attraction::find($attraction_id)->description,
-        'name' => $name,
+        'countries'   => Country::get(),
+        'desc'        => Attraction::find($attraction_id),
+        'description' => Attraction::find($attraction_id)
+        ->description,
+        'name'        => $name,
+        'key'         => Auth::check() ? true : false,
       ]);
     }
 
-
     public function add(Request $request){
+
       if(!empty(Input::get('country')) &&   !empty(Input::get('city')) && !empty(Input::get('name')) && !empty(Input::get('description'))){
 
 
@@ -74,7 +85,7 @@
           ->where('name', Input::get('city'))
           ->first()->id;
 
-        // записываем достопримечательность если её нет, если есть обновляем
+        // записываем достопримечательность)
 
         if(Attraction::where('title', '=', Input::get('title'))->count() == 0){
           $city = City::find($cityId);
@@ -105,21 +116,24 @@
       $attr = Attraction::find($id);
 
       return view('attraction.show', [
-        'country_redact'      => $attr->city->country->name,
+        'country_redact'      => $attr->city->country
+        ->name,
         'city_redact'         => $attr->city->name,
         'title_redact'        => $attr->title,
         'name_redact'         => $attr->name,
         'description_redact'  => $attr->description,
         'id'                  => $id,
         'name'                => $attr->name,
+        'key'                 => true,
       ]);
     }
 
     public function delete($id){
+      echo $id;
       $attr = Attraction::find($id);
       $attr->delete();
 
-      return view('/attraction');
+      return redirect('/attraction');
     }
 
   }

@@ -10,7 +10,12 @@
       <a href="/attraction">
         <img class="gorod" src="{{ asset('img/attractions/gorod.jpg') }}" alt="">
       </a>
+
+      <!-- auth -->
+      @include('attraction.elems.auth')
     </header>
+
+
 
     <div class="container">
       <!-- countries -->
@@ -27,9 +32,12 @@
 
     </div>
 
+      <!--
+        add/redact/delete (countries, cities, attractions)
+      -->
+      @if(isset($key) && $key == true)
+        @include('attraction.elems.add')
+      @endif
 
-      <!-- add (countries, cities...)-->
-      @include('attraction.elems.add')
-    
   </body>
 </html>

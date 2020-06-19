@@ -4,7 +4,7 @@
         <div class="div_miniature">
           <a href="/attraction/description/{{$item->id}}/{{$item->name}}">
             <div class="works-image"
-            style="background: url({{'/img/attractions/'.$item->name . '.jpg'}});
+            style="background: url({{'/img/attractions/'.$item->name.'.jpg'}});
             background-size: cover;">
               <div class="overlay">
                 <div class="content">
