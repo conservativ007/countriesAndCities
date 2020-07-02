@@ -1,4 +1,4 @@
-<div class="auth">
+<div class="position-absolute" style="top: 10px; right: 350px;">
   @if(isset($key) && $key == false)
   <span class="register">
     <a href="http://laraveltwo/register">register</a>

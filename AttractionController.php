@@ -6,13 +6,16 @@
   use Illuminate\Support\Facades\Input;
   use Illuminate\Support\Facades\Auth;
 
+  use Illuminate\Support\Facades\Storage;
+  use Illuminate\Http\File;
+
+
   use App\Country;
   use App\City;
   use App\Attraction;
 
   class AttractionController extends Controller{
     public function show(){
-
       return view('attraction.show', [
         'countries'  => Country::get(),
         'attraction' => Attraction::get(),
@@ -32,35 +35,85 @@
         'countries'   => Country::get(),
         'country'     => Country::find($id),
         'countryName' => Country::find($id)->name,
+        'attraction'  => Attraction::get(),
       ]);
     }
 
-    public function attraction($id){
+    public function attraction($country_id, $id){
       return view('attraction.show', [
-        'cities'    => City::find($id),
-        'countries' => Country::get(),
+        'countries'   => Country::get(),
+        'country'     => Country::find($country_id),
+        'countryName' => Country::find($country_id)->name,
+        'cities'      => City::find($id), 
       ]);
     }
 
     public function description($attraction_id, $name = ''){
 
+      $attr = Attraction::find($attraction_id);
+
+      $countryName = $attr->city->country->name;
+      $cityName = $attr->city->name;
+      $attrName = $attr->title;
+
+      $path = $_SERVER['DOCUMENT_ROOT'] . "/storage/$countryName/$cityName/$attrName/";
+
+      $path1 = "/storage/$countryName/$cityName/$attrName/";
+
+      if(file_exists($path)){
+         $files = scandir($path);
+         $files = array_slice($files, 2);
+      }else{
+        $files = '';
+      }
+
+
       return view('attraction.show', [
         'countries'   => Country::get(),
         'desc'        => Attraction::find($attraction_id),
-        'description' => Attraction::find($attraction_id)
-        ->description,
+        'description' => Attraction::find($attraction_id)->description,
         'name'        => $name,
+        'files'       => $files,
+        // 'path'        => $path,
+        'path1'       => $path1,
         'key'         => Auth::check() ? true : false,
       ]);
     }
 
+
+
     public function add(Request $request){
 
-      if(!empty(Input::get('country')) &&   !empty(Input::get('city')) && !empty(Input::get('name')) && !empty(Input::get('description'))){
+      if(!empty($request->country)&&
+      !empty($request->city)&&
+      !empty($request->title)){
+
+      // загружаем картинки на карусель
+      if(!empty($request->file('file'))){
+        $country = $request->country;
+        $city = $request->city;
+        $title = $request->title;
+
+        foreach($request->file() as $file){
+          foreach($file as $f){
+            $f->store("$country/$city/$title", 'public');
+          }
+        }
+      }
+
+      // загружаем на превью
+      if(!empty($request->nameprev)){
+        $imageName = time();
+        $expansion = $request->nameprev->getClientOriginalExtension();
+
+        $request->nameprev->move(public_path('img/attractions'),
+        "$imageName.$expansion");
+      }
 
 
         // если нету страны записываем
-        if (Country::where('name', '=',   Input::get('country'))->count() == 0){
+        if (Country::where('name', '=', Input::get('country'))
+        ->count() == 0){
 
           DB::table('countries')->insert([
                'name' => Input::get('country')
@@ -85,22 +138,34 @@
           ->where('name', Input::get('city'))
           ->first()->id;
 
-        // записываем достопримечательность если её нету
-        if(Attraction::where('title', '=', Input::get('title'))->count() == 0){
+        // записываем достопримечательность)
+
+        if(Attraction::where('title', '=', Input::get('title'))
+        ->count() == 0){
           $city = City::find($cityId);
           $city->attraction()->create([
-            'name'        => Input::get('name'),
-            'title'       => Input::get('title'),
-            'description' => Input::get('description')
+            'name'        => $imageName,
+            'title'       => $request->title,
+            'description' => $request->description
           ]);
-          // если есть то обновляем
         }else{
-          $attr = Attraction::find(Input::get('id'));
-          $attr->description = Input::get('description');
+          $attr = Attraction::where("title", $request->title)
+          ->first();
+
+          if(!empty($request->description)){
+            $attr->description = $request->description;
+          }else{
+            $attr->description = $attr->description;
+          }
+
           $attr->save();
         }
 
         return redirect('/attraction');
+    }
+
+    else{
+      return redirect('/attraction');
     }
 
 
@@ -110,6 +175,7 @@
 
       ]);
     }
+
 
     public function redact(Request $request, $id){
 

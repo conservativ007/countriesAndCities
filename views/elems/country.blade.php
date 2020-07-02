@@ -1,35 +1,9 @@
-<div class="country">
+<div class="list-group">
   @if(isset($countries))
     @foreach($countries as $country)
-      <div class="left">
-        <a href="/attraction/country/{{$country->id}}">
-          {{$country->name}}
-        </a>
-      </div>
+      <a href="/attraction/country/{{$country->id}}" class="list-group-item list-group-item-action">
+        {{$country->name}}
+      </a>
     @endforeach
   @endif
 </div>
-
-@if(isset($attraction))
-  <div class="show_attraction">
-
-    @foreach($attraction as $item)
-    <div class="div_miniature">
-      <a href="/attraction/description/{{$item->id}}/{{$item->name}}">
-        <div class="works-image"
-        style="background: url({{'/img/attractions/'.$item->name . '.jpg'}});
-        background-size: cover;">
-        <div class="overlay">
-          <div class="content">
-            {{$item->title}}
-          </div>
-        </div>
-        </div>
-
-      </a>
-    </div>
-    @endforeach
-
-    </div>
-  </div>
-@endif
